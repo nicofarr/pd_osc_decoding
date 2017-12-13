@@ -84,11 +84,12 @@ def _importmatfile(ftdata):
 # In[36]:
 
 
-def _matstruct2mneEpochsArray(matstruct):
+def _matstruct2mneEpochs(matstruct):
     dat1,info,events_iso_std,tmin = _importmatfile(matstruct.iso.standard)
     dat2,_,events_iso_dev,_ = _importmatfile(matstruct.iso.deviant)
     dat3,_,events_rnd_std,_ = _importmatfile(matstruct.rnd.standard)
     dat4,_,events_rnd_dev,_ = _importmatfile(matstruct.rnd.deviant)
+    
 
     alldata = np.vstack([dat1,dat2,dat3,dat4])
 
@@ -105,12 +106,12 @@ def _matstruct2mneEpochsArray(matstruct):
                      rnd_dev=events_rnd_dev[0,2])
 
     
-    mneEpochs = mne.EpochsArray(alldata_sorted,info,tmin=tmin,events=allevents_sorted,event_id=events_id)
+    mneEpochs = mne.EpochsArray(alldata_sorted,info,tmin=tmin,
+                                    events=allevents_sorted,event_id=events_id)
+    
 
     return mneEpochs.pick_types(eeg=True,eog=False)
 
-
-# In[37]:
 
 
 def import2mne(matfile):
@@ -119,7 +120,7 @@ def import2mne(matfile):
     
     #then open each condition
     
-    return _matstruct2mneEpochsArray(matstruct)
+    return _matstruct2mneEpochs(matstruct)
 
 
 # In[38]:
