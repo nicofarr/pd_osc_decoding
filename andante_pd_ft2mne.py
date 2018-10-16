@@ -83,13 +83,38 @@ def _importmatfile(ftdata):
 
 # In[36]:
 
+def _averageepochs(dat,labels,average):
+    
+    divisorshape = (dat.shape[0] // average) * average
+    
+    dat = dat[:divisorshape]
+    
+    newlabels = labels[:(dat.shape[0] // average)]
+    
+    newdat = dat.reshape((average,-1,dat.shape[1],dat.shape[2])).mean(axis=0)
+    
+    return newdat,newlabels
+    
 
-def _matstruct2mneEpochs(matstruct):
+
+def _matstruct2mneEpochs(matstruct,average=0):
     dat1,info,events_iso_std,tmin = _importmatfile(matstruct.iso.standard)
     dat2,_,events_iso_dev,_ = _importmatfile(matstruct.iso.deviant)
     dat3,_,events_rnd_std,_ = _importmatfile(matstruct.rnd.standard)
     dat4,_,events_rnd_dev,_ = _importmatfile(matstruct.rnd.deviant)
     
+    if average != 0:
+        print("Averaging %d consecutive trials for each condition" % average)
+        print(dat1.shape,dat2.shape,dat3.shape,dat4.shape)
+        
+        dat1,events_iso_std = _averageepochs(dat1,events_iso_std,average)
+        dat2,events_iso_dev = _averageepochs(dat2,events_iso_dev,average)
+        dat3,events_rnd_std = _averageepochs(dat3,events_rnd_std,average)
+        dat4,events_rnd_dev = _averageepochs(dat4,events_rnd_dev,average)
+        
+        print("Result of averaging %d consecutive trials for each condition" % average)
+        print(dat1.shape,dat2.shape,dat3.shape,dat4.shape)
+        print("---")
 
     alldata = np.vstack([dat1,dat2,dat3,dat4])
 
@@ -114,13 +139,13 @@ def _matstruct2mneEpochs(matstruct):
 
 
 
-def import2mne(matfile):
+def import2mne(matfile,average=0):
     #first open the matfile 
     matstruct = _loadftfile(matfile)
     
     #then open each condition
     
-    return _matstruct2mneEpochs(matstruct)
+    return _matstruct2mneEpochs(matstruct,average)
 
 
 # In[38]:
